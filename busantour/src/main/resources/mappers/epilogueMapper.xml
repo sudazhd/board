@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="org.iot.mapper.EpilogueMapper">
+
+	<insert id="create">
+		INSERT INTO 
+			epilogue (ep_title, ep_content, ep_writer)
+		VALUES
+			(#{ep_title}, #{ep_content}, #{ep_writer})
+	</insert>
+	
+	<select id="read" resultType="org.iot.domain.EpilogueVO">
+		SELECT
+			ep_no, ep_title, ep_content, ep_writer, regdate, ep_viewcnt
+		FROM
+			epilogue
+		WHERE
+			ep_no = #{ep_no}
+	</select>
+	
+	<update id="update">
+		UPDATE
+			epilogue
+		SET
+			ep_title = #{ep_title}, ep_content = #{ep_content}
+		WHERE 
+			ep_no = #{ep_no}
+	</update>
+	
+	<delete id="delete" parameterType="int">
+		DELETE FROM
+			epilogue
+		WHERE
+			ep_no = #{ep_no}
+	</delete>
+	
+	<select id="listAll" resultType="org.iot.domain.EpilogueVO">
+		SELECT
+			ep_no, ep_title, ep_content, ep_writer, regdate, ep_viewcnt
+		FROM
+			epilogue
+		WHERE
+			ep_no > 0
+		ORDER BY ep_no DESC, regdate DESC
+	</select>
+	
+	<select id="listPage" resultType="org.iot.domain.EpilogueVO">
+		<![CDATA[
+			SELECT
+				ep_no, ep_title, ep_content, ep_writer, regdate, ep_viewcnt
+			FROM
+				epilogue
+			WHERE 
+				ep_no > 0
+			ORDER BY 
+				ep_no DESC, regdate DESC
+			LIMIT 
+				#{page}, 10
+		]]>	
+	</select>
+	
+	<select id="listCriteria" resultType="org.iot.domain.EpilogueVO">
+		<![CDATA[
+			SELECT
+				ep_no, ep_title, ep_content, ep_writer, regdate, ep_viewcnt
+			FROM
+				epilogue
+			WHERE 
+				ep_no > 0
+			ORDER BY 
+				ep_no DESC, regdate DESC
+			LIMIT 
+				#{pageStart}, #{perPageNum}		
+		]]>
+	</select>
+	
+	<select id="countPaging" resultType="int">
+	<![CDATA[
+		SELECT
+			count(ep_no)
+		FROM
+			epilogue
+		WHERE
+			ep_no > 0
+	]]>
+	</select>
+	
+	<select id="listSearch" resultType="org.iot.domain.EpilogueVO">
+	<![CDATA[
+		SELECT
+			*
+		FROM
+			epilogue
+		WHERE
+			ep_no > 0
+		]]>
+		
+		<include refid="search"></include>
+		
+		<![CDATA[
+		ORDER BY
+			ep_no DESC
+		LIMIT
+			#{pageStart}, #{perPageNum}
+	]]>
+	</select>
+  	
+  	<select id="listSearchCount" resultType="int">
+  	<![CDATA[
+  		SELECT
+  			count(ep_no)
+  		FROM
+  			epilogue
+  		WHERE
+  			ep_no > 0
+  	]]>
+  		<include refid="search"></include>
+  	</select>
+  	
+  	<sql id="search">
+  		<if test="searchType != null" >
+			<if test="searchType == 't'.toString()">
+				AND ep_title LIKE CONCAT('%', #{keyword} ,'%')
+			</if>
+			<if test="searchType == 'c'.toString()">
+				AND ep_content LIKE CONCAT('%', #{keyword} ,'%')
+			</if>
+			<if test="searchType == 'w'.toString()">
+				AND ep_writer LIKE CONCAT('%', #{keyword} ,'%')
+			</if>
+			<if test="searchType == 'tc'.toString()">
+				AND (ep_title LIKE CONCAT('%', #{keyword}, '%') OR ep_content LIKE CONCAT('%', #{keyword} ,'%'))
+			</if>
+			<if test="searchType == 'cw'.toString()">
+				AND (ep_content LIKE CONCAT('%', #{keyword} ,'%') OR ep_writer LIKE CONCAT('%', #{keyword} ,'%'))
+			</if>
+			<if test="searchType == 'tcw'.toString()">
+				AND (ep_title LIKE CONCAT('%', #{keyword} ,'%') OR ep_content LIKE CONCAT('%', #{keyword},'%') OR ep_writer LIKE CONCAT('%', #{keyword} ,'%'))
+			</if>
+		</if>
+  	</sql>
+  	
+  	<update id="updateViewcnt">
+		UPDATE 
+			epilogue
+		SET
+			ep_viewcnt = ep_viewcnt +1
+		WHERE
+			ep_no = #{ep_no}   	
+  	</update>
+  	
+</mapper>
